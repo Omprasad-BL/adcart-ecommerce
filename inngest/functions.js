@@ -23,7 +23,7 @@ export const syncUserCreation = inngest.createFunction(
 
 export const syncUserUpdation = inngest.createFunction(
   {
-    id: "sync-user-update",
+    id: "synch-user-update",
   },
   {
     event: "clerk/user.update",
@@ -41,4 +41,22 @@ export const syncUserUpdation = inngest.createFunction(
       },
     });
   }
+);
+
+
+export const syncUserDeletion = inngest.createFunction(
+  {
+    id: "synch-user-deletion",
+    },
+    {
+        event: "clerk/user.deleted",
+    },
+    async ({ event }) => {
+        const { data } = event;
+        await prisma.user.delete({
+            where: {
+                id: data.id,
+            },
+        });
+    }
 );

@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { inngest } from "./client";
 
 // inngest function to save user to database
+export const runtime = "nodejs";
 
 export const syncUserCreation = inngest.createFunction(
   { id: "sync-user-create" },

@@ -2,7 +2,6 @@ import prisma from "@/lib/prisma";
 import { inngest } from "./client";
 
 // inngest function to save user to database
-export const runtime = "nodejs";
 
 export const syncUserCreation = inngest.createFunction(
   { id: "sync-user-create" },
@@ -60,4 +59,14 @@ export const syncUserDeletion = inngest.createFunction(
             },
         });
     }
+);
+
+
+export const helloWorld = inngest.createFunction(
+  { id: "hello-world" },
+  { event: "test/hello.world" },
+  async ({ event, step }) => {
+    await step.sleep("wait-a-moment", "1s");
+    return { message: `Hello ${event.data.email}!` };
+  },
 );

@@ -4,7 +4,7 @@ import { inngest } from "./client";
 // inngest function to save user to database
 
 export const syncUserCreation = inngest.createFunction(
-  { id: "sync-user-creation" },
+  { id: "sync-user-create" },
   {
     event: "clerk/user.created",
   },
@@ -26,7 +26,7 @@ export const syncUserUpdation = inngest.createFunction(
     id: "sync-user-update",
   },
   {
-    event: "clerk/user.update",
+    event: "clerk/user.updated",
   },
   async ({ event }) => {
     const { data } = event;
@@ -46,7 +46,7 @@ export const syncUserUpdation = inngest.createFunction(
 
 export const syncUserDeletion = inngest.createFunction(
   {
-    id: "sync-user-deletion",
+    id: "sync-user-delete",
     },
     {
         event: "clerk/user.deleted",

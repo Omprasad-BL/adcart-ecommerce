@@ -3,12 +3,13 @@ import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import toast from "react-hot-toast"
 import { DeleteIcon } from "lucide-react"
-import { couponDummyData } from "@/assets/assets"
+import { useAuth } from "@clerk/nextjs"
+import axios from "axios"
 
 export default function AdminCoupons() {
+    const {getToken}=useAuth()
 
     const [coupons, setCoupons] = useState([])
-
     const [newCoupon, setNewCoupon] = useState({
         code: '',
         description: '',
@@ -20,22 +21,67 @@ export default function AdminCoupons() {
     })
 
     const fetchCoupons = async () => {
-        setCoupons(couponDummyData)
+        try {
+            const token=await getToken()
+            const {data}=await axios.get("/api/admin/coupon",{
+                headers:{
+                    Authorization:`Bearer ${token}`
+                }
+            })
+
+            setCoupons(data.coupons)
+            
+        } catch (error) {
+            toast.error(error?.response?.data?.error|| error.code)
+        }
     }
 
     const handleAddCoupon = async (e) => {
         e.preventDefault()
-        // Logic to add a coupon
+        try {
+            const token=await getToken()
+            newCoupon.discount=Number(newCoupon.discount)
+            newCoupon.expiresAt=new Date(newCoupon.expiresAt)
+            const {data}=await axios.post("/api/admin/coupon",{coupon:newCoupon},{
+                headers:{
+                    Authorization:`Bearer ${token}`
+                }
+            })
+
+            toast.success(data.message);
+            await fetchCoupons()
+
+        } catch (error) {
+            toast.error(error?.response?.data?.error|| error.code)
+        }
 
 
     }
 
     const handleChange = (e) => {
         setNewCoupon({ ...newCoupon, [e.target.name]: e.target.value })
+
+
     }
 
     const deleteCoupon = async (code) => {
-        // Logic to delete a coupon
+        try {
+            const confirm=window.confirm("are you sure? want to delete this coupon")
+            if(!confirm) return   
+            const token =await getToken()
+            await axios.delete(`/api/admin/coupon?code=${code}`,{
+                coupon:newCoupon
+            },
+        {headers:{
+            Authorization:`Bearer ${token}`
+        }})
+
+        await fetchCoupons()
+        toast.success("Coupon deleted successfully")
+        } catch (error) {
+                toast.error(error?.response?.data?.error|| error.code)
+
+        }
 
 
     }

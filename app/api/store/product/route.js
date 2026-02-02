@@ -1,3 +1,5 @@
+import imageKit from "@/configs/imageKit";
+import authSeller from "@/middlewares/authSeller";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -9,6 +11,7 @@ export async function POST(request) {
     if (!storeId) {
       return NextResponse.json({ error: "unauthorized" }, { status: 403 });
     }
+    const formData = await request.formData();
     const name = formData.get("name");
     const description = formData.get("description");
     const mrp = Number(formData.get("mrp"));
@@ -20,7 +23,7 @@ export async function POST(request) {
       !name ||
       !description ||
       !mrp ||
-      !images.length<1||
+      images.length<1||
       !price ||
       !category
     ) {
@@ -33,12 +36,12 @@ export async function POST(request) {
 
     const imagesUrl=await Promise.all(images.map(async(image)=>{
         const buffer = Buffer.from(await image.arrayBuffer());
-        const response = await imagekit.upload({
+        const response = await imageKit.upload({
           file: buffer,
           fileName: image.name,
           folder: "products",
         });
-        const url= imagekit.url({
+        const url= imageKit.url({
           path: response.filePath,
           transformation: [
             { quality: "auto" },

@@ -82,7 +82,7 @@ async({
   event,step
 })=>{
   const {data}=event;
-  const expiryDate=new Date(data.expires_At)
+  const expiryDate=new Date(data.expiresAt)
   await step.sleepUntil('wait-for-expiry',expiryDate)
   await step.run('delete-coupon-from-database',async(params)=>{
     await prisma.coupon.delete({

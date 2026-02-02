@@ -4,28 +4,67 @@ import { toast } from "react-hot-toast"
 import Image from "next/image"
 import Loading from "@/components/Loading"
 import { productDummyData } from "@/assets/assets"
+import { useAuth, useUser } from "@clerk/nextjs"
+import axios from "axios"
+import { previousDay } from "date-fns"
 
 export default function StoreManageProducts() {
 
+    const {getToken}= useAuth()
+    const {user}= useUser()
     const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$'
 
     const [loading, setLoading] = useState(true)
     const [products, setProducts] = useState([])
 
     const fetchProducts = async () => {
-        setProducts(productDummyData)
+        try {
+            const token=await getToken()
+            const {data}= await axios.get("/api/store/product",{
+                headers:{
+                    Authorization:`Bearer ${token}`
+                }
+            })
+            setProducts(data.products.sort((a,b)=>new Date(b.createdAt) - new Date(b.createdAt)))
+
+        } catch (error) {
+            toast.error(error?.response?.data?.error|| error.message)
+        }
         setLoading(false)
     }
 
     const toggleStock = async (productId) => {
+      try {
         // Logic to toggle the stock of a product
+        const token = await getToken();
+        const { data } = await axios.post(
+          "/api/store/stock-toggle",
+          { productId },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-
+        setProducts((preProducts) =>
+          preProducts.map((product) =>
+            product.id === productId
+              ? { ...product, inStock: !product.inStock }
+              : product
+          )
+        );
+        toast.success(data.message);
+      } catch (error) {
+        toast.error(error?.response?.data?.error || error.message);
+      }
     }
 
     useEffect(() => {
-            fetchProducts()
-    }, [])
+      if (user) {
+        fetchProducts();
+      }
+    }, [user]);
 
     if (loading) return <Loading />
 

@@ -1,3 +1,6 @@
+import authSeller from "@/middlewares/authSeller";
+import { getAuth } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 // toggle stock product
 export async function POST(request) {
   try {
@@ -29,10 +32,10 @@ export async function POST(request) {
     await prisma.product.update({
       where: {
         id: productId,
-        data: {
+      },
+      data: {
           inStock: !product.inStock,
         },
-      },
     });
 
     return NextResponse.json({ message: "stock status updated suscessfully" });

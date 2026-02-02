@@ -17,14 +17,28 @@ export async function GET(request) {
 
     const products = await prisma.product.findMany({ where: { storeId } });
 
+    // const ratings = await prisma.rating.findMany({
+    //   productId: {
+    //     in: products.map((product) => product.id),
+    //   },
+    //   include: { user: true, product: true },
+    // });
+
+
     const ratings = await prisma.rating.findMany({
-      productId: {
-        in: products.map((product) => product.id),
+      where: {
+        productId: {
+          in: products.map((product) => product.id),
+        },
       },
-      include: { user: true, product: true },
+      include: {
+        user: true,
+        product: true,
+      },
     });
 
-    const dahsboardData = {
+
+    const dashboardData = {
       ratings,
       totalOrders: orders.length,
       totalEarnings: Math.round(
@@ -32,7 +46,7 @@ export async function GET(request) {
       ),
       totalProducts: products.length,
     };
-    return NextResponse.json({ dahsboardData });
+    return NextResponse.json({ dashboardData });
   } catch (error) {
     console.log({"error":error.message});
     return NextResponse.json(

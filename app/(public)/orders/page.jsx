@@ -7,7 +7,7 @@ import { orderDummyData } from "@/assets/assets";
 export default function Orders() {
 
     const [orders, setOrders] = useState([]);
-
+    
     useEffect(() => {
         setOrders(orderDummyData)
     }, []);
